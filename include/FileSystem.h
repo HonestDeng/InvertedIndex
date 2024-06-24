@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 namespace InvertedIndex {
 
@@ -37,7 +38,11 @@ private:
   FSNode *current_;
   FileID next_id_;
 
+  std::map<FileID, FSNode *> id2node_;
+
   void LoadJson(const std::string &fs_path);
+
+  void RMHelper(FSNode *node);
 public:
   FileSystem();
 

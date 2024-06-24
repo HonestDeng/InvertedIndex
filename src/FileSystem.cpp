@@ -78,6 +78,7 @@ void FileSystem::Touch(const std::string &file_name, const std::string &owner) {
   file->isDir_ = false;
   file->path_ = current_->path_;
   file->path_.push_back(current_);
+  id2node_[file->id_] = file;
   current_->children_.push_back(file);
 }
 
@@ -98,23 +99,35 @@ void FileSystem::MkDir(const std::string &dir_name, const std::string &owner) {
   dir->isDir_ = true;
   dir->path_ = current_->path_;
   dir->path_.push_back(current_);
+  id2node_[dir->id_] = dir;
   current_->children_.push_back(dir);
+}
+
+void FileSystem::RMHelper(InvertedIndex::FSNode *node) {
+  for (auto child : node->children_) {
+    RMHelper(child);
+  }
+  node->children_.clear();
+  id2node_.erase(node->id_);
+  delete node;
 }
 
 void FileSystem::Rm(const std::string &file_name) {
   for (auto it = current_->children_.begin(); it != current_->children_.end(); ++it) {
     if ((*it)->name_ == file_name && !(*it)->isDir_) {
+      id2node_.erase((*it)->id_);
       delete *it;
       current_->children_.erase(it);
-      break;
+      return;
     }
   }
+  int a = 0;
 }
 
 void FileSystem::RmDir(const std::string &dir_name) {
   for (auto it = current_->children_.begin(); it != current_->children_.end(); ++it) {
     if ((*it)->name_ == dir_name && (*it)->isDir_) {
-      delete *it;
+      RMHelper(*it);
       current_->children_.erase(it);
       break;
     }
