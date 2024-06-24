@@ -24,7 +24,6 @@ void FileSystem::CD(const std::string &dir_name) {
   if (dir_name == "..") {
     if (current_ != root_) {
       current_ = current_->path_.back();
-      current_->path_.pop_back();
     }
   } else {
     for (auto child : current_->children_) {
