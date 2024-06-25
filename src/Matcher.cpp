@@ -3,27 +3,24 @@
 //
 
 #include "../include/Matcher.h"
+#include "../include/FileSystem.h"
 
 namespace InvertedIndex {
 
-bool Matcher::match(const std::string &text) const {
-  return text.find(condition_) != std::string::npos;
+bool SuffixMatcher::match(FSNode* node) const {
+  return node->suffix_ == condition_;
 }
 
-bool SuffixMatcher::match(const std::string &text) const {
-  return Matcher::match(text);
+bool SizeMatcher::match(FSNode* node) const {
+  return node->file_size_ == condition_;
 }
 
-bool SizeMatcher::match(const std::string &text) const {
-  return Matcher::match(text);
+bool OwnerMatcher::match(FSNode* node) const {
+  return node->owner_ == condition_;
 }
 
-bool OwnerMatcher::match(const std::string &text) const {
-  return Matcher::match(text);
-}
-
-bool TimeMatcher::match(const std::string &text) const {
-  return Matcher::match(text);
+bool TimeMatcher::match(FSNode* node) const {
+  return node->time_ == condition_;
 }
 
 } // namespace InvertedIndex

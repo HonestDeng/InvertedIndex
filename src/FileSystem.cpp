@@ -3,6 +3,7 @@
 //
 
 #include "../include/FileSystem.h"
+#include "../include/Matcher.h"
 
 namespace InvertedIndex {
 
@@ -26,7 +27,7 @@ void FileSystem::CD(const std::string &dir_name) {
       current_ = current_->path_.back();
     }
   } else {
-    for (auto child : current_->children_) {
+    for (auto child: current_->children_) {
       if (child->name_ == dir_name && child->isDir_) {
         current_ = child;
         break;
@@ -66,7 +67,7 @@ void FileSystem::Touch(const std::string &file_name, const std::string &owner) {
     return;
   }
   // Check if the file already exists
-  for (auto child : current_->children_) {
+  for (auto child: current_->children_) {
     if (child->name_ == file_name && !child->isDir_) {
       return;
     }
@@ -76,6 +77,7 @@ void FileSystem::Touch(const std::string &file_name, const std::string &owner) {
   file->owner_ = owner;
   file->id_ = next_id_++;
   file->isDir_ = false;
+  file->suffix_ = file_name.substr(file_name.find_last_of('.') + 1);
   file->path_ = current_->path_;
   file->path_.push_back(current_);
   id2node_[file->id_] = file;
@@ -87,7 +89,7 @@ void FileSystem::MkDir(const std::string &dir_name, const std::string &owner) {
     return;
   }
   // Check if the directory already exists
-  for (auto child : current_->children_) {
+  for (auto child: current_->children_) {
     if (child->name_ == dir_name && child->isDir_) {
       return;
     }
@@ -104,7 +106,7 @@ void FileSystem::MkDir(const std::string &dir_name, const std::string &owner) {
 }
 
 void FileSystem::RMHelper(InvertedIndex::FSNode *node) {
-  for (auto child : node->children_) {
+  for (auto child: node->children_) {
     RMHelper(child);
   }
   node->children_.clear();
@@ -134,7 +136,24 @@ void FileSystem::RmDir(const std::string &dir_name) {
   }
 }
 
-const std::vector<FSNode*> FileSystem::LS() const {
+const std::vector<FSNode *> FileSystem::LS() const {
   return current_->children_;
 }
+
+void FileSystem::FindHelper(InvertedIndex::FSNode *node, InvertedIndex::Matcher *matcher,
+                            std::vector<std::string> &result) {
+  if (matcher->match(node)) {
+    result.push_back(node->EmitPath());
+  }
+  for (auto child: node->children_) {
+    FindHelper(child, matcher, result);
+  }
+}
+
+std::vector<std::string> FileSystem::Find(Matcher * matcher) {
+  std::vector<std::string> result;
+  FindHelper(root_, matcher, result);
+  return result;
+}
+
 };

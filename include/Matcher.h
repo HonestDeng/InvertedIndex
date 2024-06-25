@@ -8,13 +8,15 @@
 #include <string>
 
 namespace InvertedIndex {
+class FSNode;
+
 class Matcher {
 protected:
   std::string condition_;
 public:
   explicit Matcher(std::string condition) : condition_(std::move(condition)) {}
 
-  virtual bool match(const std::string &text) const = 0;
+  virtual bool match(FSNode*) const = 0;
 
   virtual ~Matcher() = default;
 };
@@ -23,28 +25,28 @@ class SuffixMatcher : public Matcher {
 public:
   explicit SuffixMatcher(std::string condition) : Matcher(std::move(condition)) {}
 
-  bool match(const std::string &text) const override;
+  bool match(FSNode*) const override;
 };
 
 class SizeMatcher : public Matcher {
 public:
   explicit SizeMatcher(std::string condition) : Matcher(std::move(condition)) {}
 
-  bool match(const std::string &text) const override;
+  bool match(FSNode*) const override;
 };
 
 class OwnerMatcher : public Matcher {
 public:
   explicit OwnerMatcher(std::string condition) : Matcher(std::move(condition)) {}
 
-  bool match(const std::string &text) const override;
+  bool match(FSNode*) const override;
 };
 
 class TimeMatcher : public Matcher {
 public:
   explicit TimeMatcher(std::string condition) : Matcher(std::move(condition)) {}
 
-  bool match(const std::string &text) const override;
+  bool match(FSNode*) const override;
 };
 
 } // namespace InvertedIndex

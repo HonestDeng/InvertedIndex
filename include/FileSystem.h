@@ -11,6 +11,8 @@
 
 namespace InvertedIndex {
 
+class Matcher;
+
 using FileID = size_t;
 
 struct FSNode {
@@ -25,8 +27,16 @@ struct FSNode {
   std::vector<FSNode *> children_;
   std::vector<FSNode *> path_;
 
+  std::string EmitPath() {
+    std::string path;
+    for (auto node: path_) {
+      path += node->name_ + "/";
+    }
+    return path + name_;
+  }
+
   ~FSNode() {
-    for (auto child : children_) {
+    for (auto child: children_) {
       delete child;
     }
   }
@@ -43,10 +53,13 @@ private:
   void LoadJson(const std::string &fs_path);
 
   void RMHelper(FSNode *node);
+
+  void FindHelper(FSNode *node, Matcher *matcher, std::vector<std::string> &result);
+
 public:
   FileSystem();
 
-  FileSystem(const std::string& fs_path);
+  FileSystem(const std::string &fs_path);
 
   ~FileSystem();
 
@@ -68,7 +81,9 @@ public:
 
   void RmDir(const std::string &dir_name);
 
-  const std::vector<FSNode*> LS() const;
+  const std::vector<FSNode *> LS() const;
+
+  std::vector<std::string> Find(Matcher *);
 };
 
 } // namespace InvertedIndex
